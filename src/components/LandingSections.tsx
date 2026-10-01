@@ -99,7 +99,7 @@ export function Instructor() {
     <section className="instructor" id="instructor">
       <div className="portrait">
         <img
-          src="/maya-chen.png"
+          src="/maya-chen.jpg"
           alt="Maya Chen, fictional LaunchCraft instructor"
         />
         <div>

@@ -1,5 +1,5 @@
 import { ArrowRight, Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function RegistrationDialog({
   onClose,
@@ -10,15 +10,35 @@ export default function RegistrationDialog({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [goal, setGoal] = useState("");
+  const dialogRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
+      if (event.key !== "Tab") return;
+      const controls = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), input",
+        ) ?? [],
+      );
+      if (!controls.length) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
     };
   }, [onClose]);
   return (
@@ -31,6 +51,7 @@ export default function RegistrationDialog({
     >
       <div
         className="modal"
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="register-title"
